@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# Data (데이터셋은 용량이 크니 제외)
+data/
+
+# Docker
+.dockerignore

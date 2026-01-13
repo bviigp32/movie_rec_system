@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # 1. 메인 데이터베이스 (PostgreSQL)
+  db:
+    image: postgres:15
+    container_name: movie-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: movielens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. 캐시 메모리 (Redis)
+  redis:
+    image: redis:alpine
+    container_name: movie-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
