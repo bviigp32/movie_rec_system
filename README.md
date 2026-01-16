@@ -6,6 +6,7 @@
 * **Day 1**: 프로젝트 환경 구축 및 DB 설계 (PostgreSQL, Redis, Docker Compose)
 * **Day 2**: ETL 파이프라인 구축 (MovieLens 데이터셋 10만 건 DB 적재)
 * **Day 3**: SVD 협업 필터링 모델 학습 및 저장 (.pkl)
+* **Day 4**: 추천 API 구현 및 Redis 캐싱 적용 (속도 최적화)
 
 ## 기술 스택 (Tech Stack)
 * **Language**: Python 3.11
@@ -15,6 +16,7 @@
 * **Infra**: Docker, Docker Compose
 * **Data Engineering**: Pandas (ETL)
 * **AI Model**: SVD (Matrix Factorization)
+* **Performance**: Redis (In-memory Cache)
 
 ## 데이터베이스 설계 (ERD)
 * **User**: 사용자 정보
@@ -28,6 +30,9 @@
 2. **AI 추천 모델 학습**
    - Scikit-Surprise 라이브러리의 SVD 알고리즘 활용
    - 학습된 모델을 Pickle로 직렬화하여 API 서빙 최적화
+3. **고성능 추천 API**
+   - Redis 캐싱 전략(Cache-Aside)을 적용하여 재조회 속도를 1초 -> 0.01초로 단축
+   - `FastAPI` + `SQLAlchemy` 비동기 처리
 
 ---
 *Dev Log: 매일 기능을 추가하며 업데이트 중입니다.*
