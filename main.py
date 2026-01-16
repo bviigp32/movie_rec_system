@@ -34,40 +34,49 @@ def read_root():
 @app.get("/recommend/{user_id}")
 def get_recommendations(user_id: int, db: Session = Depends(get_db)):
     """
-    특정 유저(user_id)에게 영화 10개를 추천합니다.
-    1순위: Redis 캐시 확인
-    2순위: AI 모델 예측
+    특정 유저(user_id)에게 '아직 안 본 영화' 중 10개를 추천합니다.
     """
     cache_key = f"rec:{user_id}"
 
-    # --- [Step 1] Redis 캐시 확인 (0.001초) ---
+    # 1. Redis 캐시 확인
     cached_data = rd.get(cache_key)
     if cached_data:
         print(f"⚡ [Cache Hit] 유저 {user_id}의 추천 목록을 Redis에서 가져왔습니다.")
         return json.loads(cached_data)
 
-    # --- [Step 2] 캐시에 없으면 AI가 계산 (0.5초 이상) ---
-    print(f"[Cache Miss] AI 모델이 유저 {user_id}의 취향을 분석 중...")
+    print(f"🐢 [Cache Miss] AI 모델이 유저 {user_id}의 취향을 분석 중...")
+
+    # --- [업그레이드 된 로직 시작] ---
     
-    # 이 유저가 아직 안 본 영화만 추려야 하지만, 
-    # 간단한 구현을 위해 '모든 영화'에 대해 예상 점수를 매깁니다.
+    # 2. 유저가 이미 본(평점을 남긴) 영화 ID 목록 가져오기
+    # DB 쿼리: SELECT movie_id FROM ratings WHERE user_id = ...
+    watched_list = db.query(models.Rating.movie_id).filter(models.Rating.user_id == user_id).all()
+    # 가져온 리스트 [(1,), (50,), (100,)] 를 집합 {1, 50, 100} 으로 변환
+    watched_movie_ids = {m[0] for m in watched_list}
+
+    # 3. 안 본 영화만 남기기 (차집합 연산)
+    # 전체 영화(set) - 본 영화(set) = 안 본 영화
+    all_movie_set = set(all_movie_ids)
+    unseen_movie_ids = all_movie_set - watched_movie_ids
+    
+    print(f"🔍 전체 {len(all_movie_ids)}개 중 유저가 안 본 {len(unseen_movie_ids)}개 영화만 예측합니다.")
+
+    # 4. 안 본 영화에 대해서만 예측 수행
     predictions = []
-    for movie_id in all_movie_ids:
-        # model.predict(유저ID, 영화ID) -> 예상 평점 반환
+    for movie_id in unseen_movie_ids:
         pred = model.predict(user_id, movie_id)
         predictions.append((movie_id, pred.est))
     
-    # 예상 평점이 높은 순서대로 정렬해서 상위 10개 뽑기
+    # --- [업그레이드 된 로직 끝] ---
+
+    # 5. 상위 10개 추출 (나머지는 동일)
     top_10 = sorted(predictions, key=lambda x: x[1], reverse=True)[:10]
     
-    # 영화 제목 DB에서 가져오기
     top_movie_ids = [m[0] for m in top_10]
     movies = db.query(models.Movie).filter(models.Movie.id.in_(top_movie_ids)).all()
     
-    # 결과 JSON 만들기
     result = []
     for m in movies:
-        # 점수 찾기
         score = next(item[1] for item in top_10 if item[0] == m.id)
         result.append({
             "movie_id": m.id,
@@ -76,7 +85,6 @@ def get_recommendations(user_id: int, db: Session = Depends(get_db)):
             "predicted_score": round(score, 2)
         })
 
-    # --- [Step 3] 결과를 Redis에 저장 (TTL: 1시간) ---
     rd.setex(cache_key, 3600, json.dumps(result))
     
     return result
