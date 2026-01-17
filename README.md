@@ -7,6 +7,7 @@
 * **Day 2**: ETL 파이프라인 구축 (MovieLens 데이터셋 10만 건 DB 적재)
 * **Day 3**: SVD 협업 필터링 모델 학습 및 저장 (.pkl)
 * **Day 4**: 추천 API 구현 및 Redis 캐싱 적용 (속도 최적화)
+* **Day 5**: Streamlit 기반 웹 UI 개발 (영화 카드 디자인, 매칭 확률 시각화)
 
 ## 기술 스택 (Tech Stack)
 * **Language**: Python 3.11
@@ -17,6 +18,7 @@
 * **Data Engineering**: Pandas (ETL)
 * **AI Model**: SVD (Matrix Factorization)
 * **Performance**: Redis (In-memory Cache)
+* **Frontend**: Streamlit (Web UI)
 
 ## 데이터베이스 설계 (ERD)
 * **User**: 사용자 정보
@@ -33,6 +35,9 @@
 3. **고성능 추천 API**
    - Redis 캐싱 전략(Cache-Aside)을 적용하여 재조회 속도를 1초 -> 0.01초로 단축
    - `FastAPI` + `SQLAlchemy` 비동기 처리
-
+4. **직관적인 웹 인터페이스 (Netflix-like UI)**
+   - Redis 캐싱 동작 여부(Cache Hit/Miss)를 시각적으로 확인 가능 
+   - 추천된 영화를 카드 형태로 배치하고, AI 예측 평점을 '매칭 확률(%)'로 변환하여 표시
+   
 ---
 *Dev Log: 매일 기능을 추가하며 업데이트 중입니다.*
