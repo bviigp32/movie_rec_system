@@ -71,7 +71,7 @@ if st.session_state.get('clicked'):
                                     <p style="font-size:12px; color:#aaa;">{movie['genres'].replace('|', ', ')}</p>
                                     <div style="margin-top:10px;">
                                         <span style="font-size:20px; font-weight:bold; color:#E50914;">
-                                            {int(movie['predicted_score'] * 20)}%
+                                            {round(movie['predicted_score'] * 20, 1)}%
                                         </span>
                                         <span style="font-size:12px;">일치</span>
                                     </div>
