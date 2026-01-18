@@ -6,11 +6,11 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import get_db, engine
 import models
+import os 
 
 # 1. 인프라 연결 설정
-# Redis 연결 (Docker 컨테이너 이름이 'movie-redis'가 아니라 로컬호스트로 접속)
-# 이유: uvicorn을 내 컴퓨터에서 실행하니까 localhost:6379로 붙어야 함
-rd = redis.Redis(host='localhost', port=6379, db=0)
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+rd = redis.Redis(host=REDIS_HOST, port=6379, db=0)
 
 # 2. 학습된 AI 모델 불러오기
 # 서버 켤 때 한 번만 로딩 (메모리 절약)
